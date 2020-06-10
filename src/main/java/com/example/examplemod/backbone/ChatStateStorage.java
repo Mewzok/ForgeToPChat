@@ -22,7 +22,7 @@ public class ChatStateStorage implements IStorage<IChatStates>
 	@Override
 	public void readNBT(Capability<IChatStates> capability, IChatStates instance, EnumFacing side, NBTBase nbt)
 	{
-		System.out.println("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
+		System.out.println("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
 		// Load information from NBT
 		// This line below is breaking.
 		instance.setWC(((NBTTagCompound) nbt).getBoolean(null));
