@@ -1,9 +1,16 @@
 package com.example.examplemod.backbone;
 
+import net.minecraft.nbt.NBTTagCompound;
+
 //States for chat types
 public interface IChatStates
 {
-	public boolean setWC(boolean wc);
-	public String getChatStates();
-	public void setChatStates(String chatStates);
+	public void setWC(boolean wcState);
+	public boolean getWC();
+	public void setTC(boolean tcState);
+	public boolean getTC();
+	public void setLC(boolean lcState);
+	public boolean getLC();
+	public void setGC(boolean GCState);
+	public boolean getGC();
 }

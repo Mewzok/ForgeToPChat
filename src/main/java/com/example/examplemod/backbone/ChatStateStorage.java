@@ -16,16 +16,17 @@ public class ChatStateStorage implements IStorage<IChatStates>
 	public NBTBase writeNBT(Capability<IChatStates> capability, IChatStates instance, EnumFacing side)
 	{
 		// Save information to NBT
-		return new NBTTagString(instance.getChatStates());
+		NBTTagCompound cm = new NBTTagCompound();
+		cm.setBoolean("getWC", instance.getWC());
+		cm.setBoolean("getTC", instance.getTC());
+		return cm;
 	}
 
 	@Override
 	public void readNBT(Capability<IChatStates> capability, IChatStates instance, EnumFacing side, NBTBase nbt)
 	{
-		System.out.println("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
 		// Load information from NBT
-		// This line below is breaking.
-		instance.setWC(((NBTTagCompound) nbt).getBoolean(null));
+		instance.setWC(((NBTTagCompound) nbt).getBoolean("getWC"));
+		instance.setTC(((NBTTagCompound) nbt).getBoolean("getTC"));
 	}
-
 }

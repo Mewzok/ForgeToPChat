@@ -3,6 +3,8 @@ package com.example.examplemod.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.examplemod.backbone.ChatProvider;
+import com.example.examplemod.backbone.IChatStates;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
@@ -11,10 +13,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 
 public class worldchat implements ICommand {
 	
-	private boolean wcOn = false;
 	@Override
 	public int compareTo(ICommand arg0) {
 		// TODO Auto-generated method stub
@@ -24,7 +26,7 @@ public class worldchat implements ICommand {
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
-		return "worldchat";
+		return "toggleworldchat";
 	}
 
 	@Override
@@ -38,7 +40,9 @@ public class worldchat implements ICommand {
 		// TODO Auto-generated method stub
 		List<String> commandAliases = new ArrayList();
 		commandAliases.add("wc");
-		commandAliases.add("world");
+		commandAliases.add("twc");
+		commandAliases.add("tworld");
+		commandAliases.add("worldchat");
 		return commandAliases;
 	}
 
@@ -47,13 +51,26 @@ public class worldchat implements ICommand {
 		// TODO Auto-generated method stub
 		if ( sender instanceof EntityPlayer ) 
 		{
+			IChatStates cs = ((EntityPlayer) sender).getCapability(ChatProvider.WC_DEFAULT, null);
+			
+			// Check for state, then toggle
+			if(cs.getWC()==true)
+			{
+				cs.setWC(false);
+				sender.sendMessage(new TextComponentString("World chat has been " + TextFormatting.RED + "disabled."));
+			}
+			else
+			{
+				cs.setWC(true);
+				sender.sendMessage(new TextComponentString("World chat has been " + TextFormatting.GREEN + "enabled"));
+			}
 		}
 	}
 
 	@Override
 	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -22,6 +23,7 @@ import com.example.examplemod.commands.localchat;
 import com.example.examplemod.commands.teamchat;
 import com.example.examplemod.commands.tradechat;
 import com.example.examplemod.commands.worldchat;
+import com.example.examplemod.commands.chatstatus;
 import com.example.examplemod.proxies.CommonProxy;
 
 @Mod(modid = ExampleMod.MODID, name = ExampleMod.NAME, version = ExampleMod.VERSION)
@@ -58,10 +60,11 @@ public class ExampleMod
 	{
 		//event.registerServerCommand(new localchat());
 		//event.registerServerCommand(new teamchat());
-		//event.registerServerCommand(new tradechat());
+		event.registerServerCommand(new tradechat());
 		event.registerServerCommand(new worldchat());
+		event.registerServerCommand(new chatstatus());
 	}
     
-    @SidedProxy(clientSide="com.example.examplemod.proxies.Clientproxy", serverSide="com.example.example.proxies.ServerProxy")
+    @SidedProxy(clientSide="com.example.examplemod.proxies.Clientproxy", serverSide="com.example.examplemod.proxies.ServerProxy")
     public static CommonProxy proxy;
 }

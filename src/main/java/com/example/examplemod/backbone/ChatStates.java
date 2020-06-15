@@ -4,31 +4,59 @@ package com.example.examplemod.backbone;
 public class ChatStates implements IChatStates
 {
 	private boolean wcState = true;
-	private String allStates = "test test test";
+	private boolean tcState = true;
 	
-	@Override
-	public boolean setWC(boolean wcState)
+	public void setWC(boolean wcState)
 	{
 		// Set World Chat to enabled or disabled
-		if(wcState == true)
-			wcState = false;
-		else
-			wcState = true;
-		return wcState;
+		this.wcState = wcState;
+	}
+
+	public boolean getWC()
+	{
+		// Get World Chat state
+		return this.wcState;
 	}
 
 	@Override
-	public String getChatStates()
+	public void setTC(boolean tcState)
 	{
-		// Obtain information on the current state of the player's chat
-		return this.allStates;
-	}
-	
-	@Override
-	public void setChatStates(String state)
-	{
-		// Set information on the current state of the player's chat
-		this.allStates = "World chat: " + this.wcState;
+		// Set Trade Chat to enabled or disabled
+		this.tcState = tcState;
 	}
 
+	@Override
+	public boolean getTC()
+	{
+		// Get Trade Chat state
+		return this.tcState;
+	}
+
+	@Override
+	public void setLC(boolean lcState)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean getLC()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setGC(boolean GCState)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean getGC()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

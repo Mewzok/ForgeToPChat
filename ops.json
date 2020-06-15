@@ -10,5 +10,11 @@
     "name": "Mewzok",
     "level": 4,
     "bypassesPlayerLimit": false
+  },
+  {
+    "uuid": "e4358028-bc3b-38cc-b645-4d08d3b4f456",
+    "name": "Player712",
+    "level": 4,
+    "bypassesPlayerLimit": false
   }
 ]
