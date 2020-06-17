@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.example.examplemod.backbone.ChatProvider;
 import com.example.examplemod.backbone.IChatStates;
-import com.example.examplemod.backbone.utilitymethods;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
@@ -16,73 +15,74 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
-public class chatstatus implements ICommand
-{
+public class ToggleTradeChat implements ICommand {
+
 	@Override
-	public int compareTo(ICommand arg0)
-	{
+	public int compareTo(ICommand o) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public String getName()
-	{
+	public String getName() {
 		// TODO Auto-generated method stub
-		return "chatstatus";
+		return "toggletradechat";
 	}
 
 	@Override
-	public String getUsage(ICommandSender sender)
-	{
+	public String getUsage(ICommandSender sender) {
 		// TODO Auto-generated method stub
-		return "Displays current status of world chat.";
+		return "Toggles trade chat on or off.";
 	}
 
 	@Override
-	public List<String> getAliases()
-	{
+	public List<String> getAliases() {
 		// TODO Auto-generated method stub
 		List<String> commandAliases = new ArrayList();
-		commandAliases.add("cs");
-		commandAliases.add("chatstats");
-		commandAliases.add("chats");
+		commandAliases.add("tc");
+		commandAliases.add("ttc");
+		commandAliases.add("ttrade");
+		commandAliases.add("toggletrade");
+		commandAliases.add("toggletradechat");
 		return commandAliases;
 	}
 
 	@Override
-	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
-	{
-		String is = "";
-		// Set wording for chat state
-		if(sender instanceof EntityPlayer)
+	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+		// TODO Auto-generated method stub
+		if ( sender instanceof EntityPlayer ) 
 		{
-			// Get player information stored in cs
 			IChatStates cs = ((EntityPlayer) sender).getCapability(ChatProvider.WC_DEFAULT, null);
 			
-			utilitymethods.chatStatusInfo(cs, (EntityPlayer) sender);
+			// Check for state, then toggle
+			if(cs.getTC()==true)
+			{
+				cs.setTC(false);
+				sender.sendMessage(new TextComponentString("Trade chat has been " + TextFormatting.RED + "disabled."));
+			}
+			else
+			{
+				cs.setTC(true);
+				sender.sendMessage(new TextComponentString("Trade chat has been " + TextFormatting.GREEN + "enabled"));
+			}
 		}
-
 	}
 
 	@Override
-	public boolean checkPermission(MinecraftServer server, ICommandSender sender)
-	{
+	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
 		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
 	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args,
-			BlockPos targetPos)
-	{
+			BlockPos targetPos) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public boolean isUsernameIndex(String[] args, int index)
-	{
+	public boolean isUsernameIndex(String[] args, int index) {
 		// TODO Auto-generated method stub
 		return false;
 	}

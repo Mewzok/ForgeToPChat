@@ -11,6 +11,8 @@ public interface IChatStates
 	public boolean getTC();
 	public void setLC(boolean lcState);
 	public boolean getLC();
-	public void setGC(boolean GCState);
+	public void setGC(boolean gcState);
 	public boolean getGC();
+	public void setMode(String curMode);
+	public String getMode();
 }

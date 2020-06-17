@@ -12,6 +12,7 @@ import net.minecraftforge.common.capabilities.Capability.IStorage;
 public class ChatStateStorage implements IStorage<IChatStates>
 {
 
+	// Save player information to NBT storage
 	@Override
 	public NBTBase writeNBT(Capability<IChatStates> capability, IChatStates instance, EnumFacing side)
 	{
@@ -19,14 +20,19 @@ public class ChatStateStorage implements IStorage<IChatStates>
 		NBTTagCompound cm = new NBTTagCompound();
 		cm.setBoolean("getWC", instance.getWC());
 		cm.setBoolean("getTC", instance.getTC());
+		cm.setBoolean("getLC", instance.getLC());
+		cm.setString("getMode", instance.getMode());
 		return cm;
 	}
 
+	// Write player information to NBT storage
 	@Override
 	public void readNBT(Capability<IChatStates> capability, IChatStates instance, EnumFacing side, NBTBase nbt)
 	{
 		// Load information from NBT
 		instance.setWC(((NBTTagCompound) nbt).getBoolean("getWC"));
 		instance.setTC(((NBTTagCompound) nbt).getBoolean("getTC"));
+		instance.setLC(((NBTTagCompound) nbt).getBoolean("getLC"));
+		instance.setMode(((NBTTagCompound) nbt).getString("getMode"));
 	}
 }

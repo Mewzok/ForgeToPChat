@@ -19,11 +19,14 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
 import org.apache.logging.log4j.Logger;
 
-import com.example.examplemod.commands.localchat;
-import com.example.examplemod.commands.teamchat;
-import com.example.examplemod.commands.tradechat;
-import com.example.examplemod.commands.worldchat;
-import com.example.examplemod.commands.chatstatus;
+import com.example.examplemod.commands.ToggleLocalChat;
+import com.example.examplemod.commands.ToggleTeamChat;
+import com.example.examplemod.commands.ToggleTradeChat;
+import com.example.examplemod.commands.ToggleWorldChat;
+import com.example.examplemod.commands.ChatStatus;
+import com.example.examplemod.commands.SetLocalChat;
+import com.example.examplemod.commands.SetTradeChat;
+import com.example.examplemod.commands.SetWorldChat;
 import com.example.examplemod.proxies.CommonProxy;
 
 @Mod(modid = ExampleMod.MODID, name = ExampleMod.NAME, version = ExampleMod.VERSION)
@@ -58,11 +61,14 @@ public class ExampleMod
     @EventHandler
 	public void serverLoad(FMLServerStartingEvent event)
 	{
-		//event.registerServerCommand(new localchat());
+		event.registerServerCommand(new ToggleLocalChat());
 		//event.registerServerCommand(new teamchat());
-		event.registerServerCommand(new tradechat());
-		event.registerServerCommand(new worldchat());
-		event.registerServerCommand(new chatstatus());
+		event.registerServerCommand(new ToggleTradeChat());
+		event.registerServerCommand(new ToggleWorldChat());
+		event.registerServerCommand(new ChatStatus());
+		event.registerServerCommand(new SetWorldChat());
+		event.registerServerCommand(new SetTradeChat());
+		event.registerServerCommand(new SetLocalChat());
 	}
     
     @SidedProxy(clientSide="com.example.examplemod.proxies.Clientproxy", serverSide="com.example.examplemod.proxies.ServerProxy")

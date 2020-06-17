@@ -1,21 +1,17 @@
 package com.example.examplemod.commands;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.fml.common.Mod.EventHandler;
 
-public class localchat implements ICommand {
+public class ToggleTeamChat implements ICommand {
 
 	@Override
-	public int compareTo(ICommand arg0) {
+	public int compareTo(ICommand o) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -23,39 +19,31 @@ public class localchat implements ICommand {
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
-		return "firstCommand";
+		return null;
 	}
 
 	@Override
 	public String getUsage(ICommandSender sender) {
 		// TODO Auto-generated method stub
-		return "Command information";
+		return null;
 	}
 
 	@Override
 	public List<String> getAliases() {
 		// TODO Auto-generated method stub
-		List<String> commandAliases = new ArrayList();
-		commandAliases.add("fc");
-		commandAliases.add("firstc");
-		return commandAliases;
+		return null;
 	}
 
 	@Override
-	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException 
-	{
+	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		// TODO Auto-generated method stub
-		if ( sender instanceof EntityPlayer ) 
-		{
-			EntityPlayer player = (EntityPlayer) sender;
-			player.sendMessage(new TextComponentString("msg.First Command.value"));
-		}
+
 	}
 
 	@Override
 	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
 		// TODO Auto-generated method stub
-		return true;
+		return false;
 	}
 
 	@Override

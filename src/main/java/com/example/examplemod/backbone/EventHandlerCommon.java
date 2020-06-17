@@ -1,6 +1,8 @@
 package com.example.examplemod.backbone;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -9,15 +11,19 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 
 public class EventHandlerCommon
 {	
+	private double pX, pY, pZ;
+	
+	// Show current chat status on login
 	@SubscribeEvent
 	public void onPlayerLogsIn(PlayerLoggedInEvent event)
 	{
 		EntityPlayer player = event.player;
 		IChatStates chatStates = player.getCapability(ChatProvider.WC_DEFAULT, null);
-		utilitymethods.chatStatusInfo(chatStates, player);
+		UtilityMethods.chatStatusInfo(chatStates, player);
+		UtilityMethods.currentChatModeInfo(chatStates, player);
 	}
 	
-	//Save and reset data from dead or moved player
+	// Save and reset data from dead or moved player
 	@SubscribeEvent
 	public void onPlayerClone(PlayerEvent.Clone event)
 	{
@@ -29,5 +35,20 @@ public class EventHandlerCommon
 		chatStates.setTC(oldChatStates.getTC());
 		chatStates.setLC(oldChatStates.getLC());
 		chatStates.setGC(oldChatStates.getGC());
+		chatStates.setMode(oldChatStates.getMode());
+	}
+	
+	@SubscribeEvent
+	public void ServerChatEvent(EntityPlayerMP player, String msg, ITextComponent component)
+	{
+		this.pX = player.posX;
+		this.pY = player.posY;
+		this.pZ = player.posZ;
+	}
+	
+	@SubscribeEvent
+	public void ClientChatRecievedEvent()
+	{
+		
 	}
 }

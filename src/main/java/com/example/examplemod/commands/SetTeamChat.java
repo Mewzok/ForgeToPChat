@@ -8,53 +8,62 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 
-public class teamchat implements ICommand {
+public class SetTeamChat implements ICommand
+{
 
 	@Override
-	public int compareTo(ICommand o) {
+	public int compareTo(ICommand o)
+	{
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public String getName() {
+	public String getName()
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String getUsage(ICommandSender sender) {
+	public String getUsage(ICommandSender sender)
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<String> getAliases() {
+	public List<String> getAliases()
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
+	{
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+	public boolean checkPermission(MinecraftServer server, ICommandSender sender)
+	{
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args,
-			BlockPos targetPos) {
+			BlockPos targetPos)
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public boolean isUsernameIndex(String[] args, int index) {
+	public boolean isUsernameIndex(String[] args, int index)
+	{
 		// TODO Auto-generated method stub
 		return false;
 	}

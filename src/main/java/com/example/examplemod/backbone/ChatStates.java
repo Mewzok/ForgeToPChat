@@ -5,6 +5,9 @@ public class ChatStates implements IChatStates
 {
 	private boolean wcState = true;
 	private boolean tcState = true;
+	private boolean lcState = true;
+	private boolean gcState = true;
+	private String currentMode = "World";
 	
 	public void setWC(boolean wcState)
 	{
@@ -35,15 +38,15 @@ public class ChatStates implements IChatStates
 	@Override
 	public void setLC(boolean lcState)
 	{
-		// TODO Auto-generated method stub
-		
+		// Set Local Chat state
+		this.lcState = lcState;
 	}
 
 	@Override
 	public boolean getLC()
 	{
-		// TODO Auto-generated method stub
-		return false;
+		// Get Local Chat state
+		return this.lcState;
 	}
 
 	@Override
@@ -58,5 +61,36 @@ public class ChatStates implements IChatStates
 	{
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public void setMode(String curMode)
+	{
+		// TODO Auto-generated method stub
+		this.currentMode=curMode;
+		
+		/*
+		if(curMode=="World")
+		{
+			this.currentMode="World";
+		}else if(curMode=="Trade")
+		{
+			this.currentMode="Trade";
+		}else if(curMode=="Local")
+		{
+			this.currentMode="Local";
+		}else if(curMode=="Team")
+		{
+			this.currentMode="Team";
+		}else
+			this.currentMode="Unknown";
+			*/
+	}
+
+	@Override
+	public String getMode()
+	{
+		// TODO Auto-generated method stub
+		return this.currentMode;
 	}
 }
