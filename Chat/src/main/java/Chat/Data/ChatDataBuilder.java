@@ -18,7 +18,7 @@ public class ChatDataBuilder extends AbstractDataBuilder<ChatData> implements Da
 	@Override
 	public ChatData create()
 	{
-		return new ChatData(true, true, true, "World");
+		return new ChatData(true, true, true, "Local");
 	}
 	
 	@Override

@@ -6,11 +6,17 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.channel.MutableMessageChannel;
+import org.spongepowered.api.text.channel.type.FixedMessageChannel;
 import org.spongepowered.api.text.chat.ChatType;
 import org.spongepowered.api.text.format.TextColors;
+
+import Chat.system.Utility;
 
 public class LocalMessageChannelInput implements MutableMessageChannel
 {
@@ -55,10 +61,16 @@ public class LocalMessageChannelInput implements MutableMessageChannel
 	public Optional<Text> transformMessage(Object sender, MessageReceiver recipient, Text original, ChatType type)
 	{
 		Text text = original;
-		if(this.members.contains(recipient))
+		Collection<Entity> withinRange = Utility.getEntities((Player) sender, 100);
+		
+		if(this.members.contains(recipient) && withinRange.contains((Entity)recipient))
 			{
 				text = Text.of(TextColors.GRAY, "[Local]", text);
+				return Optional.of(text);
 			}
-		return Optional.of(text);
+		else
+		{
+			return Optional.empty();
+		}
 	}
 }

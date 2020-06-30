@@ -1,5 +1,9 @@
 package Chat;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.logging.Logger;
 
 import org.spongepowered.api.Sponge;
@@ -21,7 +25,10 @@ import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
+import org.spongepowered.api.text.channel.MessageReceiver;
+import org.spongepowered.api.world.Location;
 
+import com.google.common.base.Predicate;
 import com.google.inject.Inject;
 
 import Chat.Commands.SetLocalChatViewOff;
@@ -139,57 +146,15 @@ public class Main
 	}
 	
 	@Listener
-	public void onJoin(ClientConnectionEvent.Join e, @Getter("getTargetEntity") @Has(value = ChatData.class, inverse = false) Player player)
+	public void onFirstJoin(ClientConnectionEvent.Join e, @Getter("getTargetEntity") @Has(value = ChatData.class, inverse = true) Player player)
+	{
+		Utility.onJoinCreation(player);
+	}
+	
+	@Listener
+	public void onReturningJoin(ClientConnectionEvent.Join e, @Getter("getTargetEntity") @Has(value = ChatData.class, inverse = false) Player player)
 	{	
-		Text chatStatsMsg;
-		// Instantiate or load chat data
-		player.offer(player.getOrCreate(ChatData.class).get());
-		
-		// Send player chat status on join
-		chatStatsMsg = Utility.chatStateBuilder(player);
-		player.sendMessage(chatStatsMsg);
-		
-		// Instantiate player's chat mode
-		if(player.get(ChatKeys.MODE).get().equals("World"))
-		{
-			player.offer(ChatKeys.MODE, "World");
-		} else if(player.get(ChatKeys.MODE).get().equals("Trade"))
-		{
-			player.offer(ChatKeys.MODE, "Trade");
-		} else if(player.get(ChatKeys.MODE).get().equals("Local"))
-		{
-			player.offer(ChatKeys.MODE, "Local");
-		} else
-			player.offer(ChatKeys.MODE, "Local");
-		
-		// Instantiate player's chat toggles
-		boolean worldon = player.get(ChatKeys.WORLD_ON).get().booleanValue();
-		boolean tradeon = player.get(ChatKeys.TRADE_ON).get().booleanValue();
-		boolean localon = player.get(ChatKeys.LOCAL_ON).get().booleanValue();
-		
-		if(worldon == true)
-		{
-			wmci.addMember(player);
-		} else if(worldon == false)
-		{
-			wmci.removeMember(player);
-		}
-		
-		if(tradeon == true)
-		{
-			tmci.addMember(player);
-		} else if(tradeon == false)
-		{
-			tmci.removeMember(player);
-		}
-		
-		if(localon == true)
-		{
-			lmci.addMember(player);
-		} else if(localon == false)
-		{
-			lmci.removeMember(player);
-		}
+		Utility.onJoinCreation(player);
 		
 		smci.addMember(player);
 	} 
@@ -201,8 +166,6 @@ public class Main
 		{
 			Player player = (Player) e.getSource();
 			
-			System.out.println(player.get(ChatKeys.MODE).get());
-			
 			if (player.get(ChatKeys.MODE).get().equals("World"))
 			{
 				e.setChannel(wmci);
@@ -212,6 +175,7 @@ public class Main
 			} else if (player.get(ChatKeys.MODE).get().equals("Local"))
 			{
 				e.setChannel(lmci);
+				
 			} else if (player.get(ChatKeys.MODE).get().equals("System"))
 			{
 				e.setChannel(smci);
@@ -219,9 +183,6 @@ public class Main
 				e.setChannel(null);
 		} else
 			e.setChannel(smci);
-		
-		System.out.println("Class: " + e.getClass());
-		System.out.println("Cause all: " + e.getCause().all());
 	}
 	
 	@Listener
