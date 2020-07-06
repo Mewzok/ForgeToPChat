@@ -24,6 +24,7 @@ public class ViewChatStats implements CommandExecutor
 			
 			src.sendMessage(msg);
 		}
+		
 		return CommandResult.success();
 	}
 

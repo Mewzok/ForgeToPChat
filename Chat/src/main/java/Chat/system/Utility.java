@@ -2,6 +2,7 @@ package Chat.system;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -90,7 +91,7 @@ public class Utility
 		return msgType;
 	}
 	
-	public static Collection<Entity> getEntities(final Player player, final int radius)
+	public static Collection<Entity> getEntities(final Player player, int radius)
 	{
 		return player.getLocation().getExtent().getEntities(new Predicate<Entity>() { @Override public boolean test(Entity entity) {
 						return entity.getLocation().getPosition().distance(player.getLocation().getPosition()) <= radius;}});
@@ -146,6 +147,48 @@ public class Utility
 		} else if(localon == false)
 		{
 			Main.lmci.removeMember(player);
+		}
+	}
+	
+	public static String CommandCooldown(Player player, HashMap<Player, Long> cooldown)
+	{
+		System.out.println("AAAAAAAAAAAAAAAAAAAAA " + cooldown.get(player));
+		int minuteCount = 0;
+		long cdMillis = 5000;
+		long time = 0;
+		String msg = "";
+		
+		
+		if(cooldown.containsKey(player))
+		{
+			if(cooldown.get(player) + cdMillis > System.currentTimeMillis())
+			{
+				time = cooldown.get(player) + cdMillis - System.currentTimeMillis();
+				time /= 1000;
+				
+				System.out.println("Time: " + time);
+				
+				while(time >= 60)
+				{
+					minuteCount++;
+					time -= 60;
+				}
+				
+				if(time != 0)
+				{
+					msg = "You must wait " + minuteCount + " minutes and " + time + " seconds to use this channel again.";
+				} else
+					msg = "You must wait " + minuteCount + " minutes to use this channel again.";
+				return msg;
+			} else
+			{
+				cooldown.remove(player);
+				return null;
+			}
+		} else
+		{
+			cooldown.put(player, System.currentTimeMillis());
+			return null;
 		}
 	}
 }

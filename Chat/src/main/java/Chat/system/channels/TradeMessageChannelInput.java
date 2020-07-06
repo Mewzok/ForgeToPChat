@@ -2,19 +2,24 @@ package Chat.system.channels;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.channel.MutableMessageChannel;
 import org.spongepowered.api.text.chat.ChatType;
 import org.spongepowered.api.text.format.TextColors;
 
+import Chat.system.Utility;
+
 public class TradeMessageChannelInput implements MutableMessageChannel
 {
 	private Set<MessageReceiver> members;
+	private HashMap<Player, Long> cooldown = new HashMap<>();
 	
 	public TradeMessageChannelInput()
 	{
@@ -54,11 +59,21 @@ public class TradeMessageChannelInput implements MutableMessageChannel
 	@Override
 	public Optional<Text> transformMessage(Object sender, MessageReceiver recipient, Text original, ChatType type)
 	{
+		// Check cooldown
+		String msg = Utility.CommandCooldown((Player)sender, cooldown);
+		
+		if(msg == null)
+		{
 		Text text = original;
 		if(this.members.contains(recipient))
 			{
 				text = Text.of(TextColors.AQUA, "[Trade]", text);
 			}
 		return Optional.of(text);
+		} else
+		{
+			((Player) sender).sendMessage(Text.of(msg));
+			return Optional.empty();
+		}
 	}
 }

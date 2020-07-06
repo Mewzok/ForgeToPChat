@@ -1,15 +1,15 @@
 package Chat;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-import java.util.WeakHashMap;
-import java.util.logging.Logger;
-
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import org.slf4j.Logger;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.data.DataRegistration;
-import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.advancement.AdvancementEvent;
@@ -17,6 +17,7 @@ import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.living.humanoid.player.KickPlayerEvent;
 import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.data.Has;
+import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
@@ -24,13 +25,9 @@ import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.channel.MessageChannel;
-import org.spongepowered.api.text.channel.MessageReceiver;
-import org.spongepowered.api.world.Location;
 
-import com.google.common.base.Predicate;
+import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
-
 import Chat.Commands.SetLocalChatViewOff;
 import Chat.Commands.SetLocalChatViewOn;
 import Chat.Commands.SetTradeChatViewOff;
@@ -47,22 +44,52 @@ import Chat.Data.ChatData;
 import Chat.Data.ChatDataBuilder;
 import Chat.Data.ChatKeys;
 import Chat.Data.ImmutableChatData;
+import Chat.system.Config;
 import Chat.system.Utility;
 import Chat.system.channels.LocalMessageChannelInput;
 import Chat.system.channels.SystemMessageChannelInput;
 import Chat.system.channels.TradeMessageChannelInput;
 import Chat.system.channels.WorldMessageChannelInput;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 
-@Plugin(id = "chat", name = "Chat", version = "1.0", description = "Chat")
+@Plugin(id = "topchat", name = "Chat", version = "1.0", description = "Chat")
 public class Main
 {
+	private static Logger logger;
 	public static WorldMessageChannelInput wmci = new WorldMessageChannelInput();
 	public static TradeMessageChannelInput tmci = new TradeMessageChannelInput();
 	public static LocalMessageChannelInput lmci = new LocalMessageChannelInput();
 	public static SystemMessageChannelInput smci = new SystemMessageChannelInput();
 	
+	public static int confLocalDist;
+	public static double confLocalCD;
+	public static double confLocalCost;
+	
+	public static Logger getLogger()
+	{
+		return logger;
+	}
+	
+	@Inject
+	Game game;
+	
 	@Inject
 	PluginContainer container;
+	
+	
+// Configuration items
+	@Inject @DefaultConfig(sharedRoot = true)
+	private Path path;
+	
+	@Inject @DefaultConfig(sharedRoot = true)
+	ConfigurationLoader<CommentedConfigurationNode> loader;
+	Config config;
+// End of configuration items
 	
 	CommandSpec wcviCommandSpec = CommandSpec.builder()
 			.description(Text.of("Enables the viewing of world chat."))
@@ -119,8 +146,8 @@ public class Main
 			.build();
 	
 	@Listener
-	public void preInit(GamePreInitializationEvent e)
-	{
+	public void preInit(GamePreInitializationEvent e) throws IOException, ObjectMappingException
+	{	
 		ChatKeys.dummy();
 		DataRegistration.builder()
 		.dataName("Chat Data")
@@ -129,7 +156,57 @@ public class Main
 		.immutableClass(ImmutableChatData.class)
 		.builder(new ChatDataBuilder())
 		.buildAndRegister(container);
+		
+// Config handler	
+		Asset conf = game.getAssetManager().getAsset(this, "config.conf").get();
+		ConfigurationNode root;
+		try 
+		{
+			// Creates config directory
+			if(!Files.exists(path))
+			{
+				conf.copyToFile(path);
+			}
+			root = loader.load();
+			if (root.getNode("version").getInt() < 4)
+			{
+				root.mergeValuesFrom(loadDefault());
+				root.getNode("version").setValue(4);
+				loader.save(root);
+			}
+			config = root.getValue(Config.type);
+			System.out.println("AAAAAAAAAAAAAAA: " + config.localInfo.distance);
+			confLocalDist = config.localInfo.distance;
+		} catch(IOException ex)
+		{
+			logger.error("Error loading config.");
+			throw ex;
+		} catch (ObjectMappingException ex) 
+		{
+            logger.error("Invalid config file.");
+            mapDefault();
+            throw ex;
+        }
 	}
+		
+	    private void mapDefault() throws IOException, ObjectMappingException 
+	    {
+	        try 
+	        {
+	            config = loadDefault().getValue(Config.type);
+	        } catch (IOException | ObjectMappingException ex) 
+	        {
+	            logger.error("Could not load the embedded default config. Disabling plugin.");
+	            game.getEventManager().unregisterPluginListeners(this);
+	            throw ex;
+	        } 
+	}
+	
+	private ConfigurationNode loadDefault() throws IOException
+	{
+		return HoconConfigurationLoader.builder().setURL(game.getAssetManager().getAsset(this, "config.conf").get().getUrl()).build().load(loader.getDefaultOptions());
+	}
+// End of config handler
 	
 	@Listener
 	public void init(GameInitializationEvent e)
@@ -219,5 +296,18 @@ public class Main
 	public void messageSent(KickPlayerEvent e)
 	{
 		e.setChannel(smci);
+	}
+	
+	@Listener
+	public void onReload(GameReloadEvent e) throws IOException, ObjectMappingException
+	{
+		try 
+		{
+			config = loader.load().getValue(Config.type);
+		} catch (IOException ex)
+		{
+			logger.error("Invalid config.");
+			throw ex;
+		}
 	}
 }

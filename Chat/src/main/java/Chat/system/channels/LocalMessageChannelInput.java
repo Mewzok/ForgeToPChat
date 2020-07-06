@@ -16,6 +16,8 @@ import org.spongepowered.api.text.channel.type.FixedMessageChannel;
 import org.spongepowered.api.text.chat.ChatType;
 import org.spongepowered.api.text.format.TextColors;
 
+import Chat.Main;
+import Chat.system.Config;
 import Chat.system.Utility;
 
 public class LocalMessageChannelInput implements MutableMessageChannel
@@ -25,14 +27,14 @@ public class LocalMessageChannelInput implements MutableMessageChannel
 	public LocalMessageChannelInput()
 	{
 		this(Collections.emptySet());
-	}
+	} 
 	
 	public LocalMessageChannelInput(Collection<MessageReceiver> members)
 	{
 		this.members = Collections.newSetFromMap(new WeakHashMap<>());
 		this.members.addAll(members);
 	}
-	
+
 	@Override
 	public Collection<MessageReceiver> getMembers()
 	{
@@ -61,8 +63,7 @@ public class LocalMessageChannelInput implements MutableMessageChannel
 	public Optional<Text> transformMessage(Object sender, MessageReceiver recipient, Text original, ChatType type)
 	{
 		Text text = original;
-		Collection<Entity> withinRange = Utility.getEntities((Player) sender, 100);
-		
+		Collection<Entity> withinRange = Utility.getEntities((Player) sender, Main.confLocalDist);
 		if(this.members.contains(recipient) && withinRange.contains((Entity)recipient))
 			{
 				text = Text.of(TextColors.GRAY, "[Local]", text);
