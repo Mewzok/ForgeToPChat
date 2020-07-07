@@ -2,19 +2,25 @@ package Chat.system.channels;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.channel.MutableMessageChannel;
 import org.spongepowered.api.text.chat.ChatType;
 import org.spongepowered.api.text.format.TextColors;
 
+import Chat.Main;
+import Chat.system.Utility;
+
 public class WorldMessageChannelInput implements MutableMessageChannel
 {
 	private Set<MessageReceiver> members;
+	private HashMap<Player, Long> cooldown = new HashMap<>();
 	
 	public WorldMessageChannelInput()
 	{
@@ -54,11 +60,21 @@ public class WorldMessageChannelInput implements MutableMessageChannel
 	@Override
 	public Optional<Text> transformMessage(Object sender, MessageReceiver recipient, Text original, ChatType type)
 	{
-		Text text = original;
-		if(this.members.contains(recipient))
+		// Check cooldown
+		String msg = Utility.CommandCooldown((Player)sender, cooldown, Main.confWorldCD);
+		
+		if(msg == null)
 		{
-			text = Text.of("[World]", text);
+			Text text = original;
+			if(this.members.contains(recipient))
+			{
+				text = Text.of("[World]", text);
+			}
+			return Optional.of(text);
+		} else
+		{
+			((Player) sender).sendMessage(Text.of(msg));
+			return Optional.empty();
 		}
-		return Optional.of(text);
 	}
 }

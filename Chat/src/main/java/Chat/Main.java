@@ -67,8 +67,12 @@ public class Main
 	public static SystemMessageChannelInput smci = new SystemMessageChannelInput();
 	
 	public static int confLocalDist;
-	public static double confLocalCD;
-	public static double confLocalCost;
+	public static long confLocalCD;
+	public static long confLocalCost;
+	public static long confTradeCD;
+	public static long confTradeCost;
+	public static long confWorldCD;
+	public static long confWorldCost;
 	
 	public static Logger getLogger()
 	{
@@ -175,8 +179,14 @@ public class Main
 				loader.save(root);
 			}
 			config = root.getValue(Config.type);
-			System.out.println("AAAAAAAAAAAAAAA: " + config.localInfo.distance);
+			System.out.println("AAAAAAAAAAAAAAA: " + config.tradeInfo.cooldown);
 			confLocalDist = config.localInfo.distance;
+			confLocalCD = config.localInfo.cooldown;
+			confLocalCost = config.localInfo.cost;
+			confTradeCD = config.tradeInfo.cooldown;
+			confTradeCost = config.tradeInfo.cost;
+			confWorldCD = config.worldInfo.cooldown;
+			confWorldCost = config.worldInfo.cost;
 		} catch(IOException ex)
 		{
 			logger.error("Error loading config.");

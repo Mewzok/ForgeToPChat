@@ -15,18 +15,18 @@ public class Config
     @Setting public TradeInfo tradeInfo = new TradeInfo();
     @ConfigSerializable
     public static class LocalInfo {
-        @Setting public int distance = 100;
-        @Setting public double cooldown = 0;
-        @Setting public double cost = 0;
+        @Setting public int distance = 100; // in blocks
+        @Setting public long cooldown = 0; // in seconds
+        @Setting public long cost = 0;
     }
     @ConfigSerializable
     public static class TradeInfo {
-        @Setting public double cooldown = 1200;
-        @Setting public double cost = 0;
+        @Setting public long cooldown = 120; // in seconds
+        @Setting public long cost = 0;
     }
     @ConfigSerializable
     public static class WorldInfo {
-        @Setting public double cooldown = 0;
-        @Setting public double cost = 0;
+        @Setting public long cooldown = 0; // in seconds
+        @Setting public long cost = 0;
     }
 }

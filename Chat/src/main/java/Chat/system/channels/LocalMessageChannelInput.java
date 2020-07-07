@@ -2,6 +2,7 @@ package Chat.system.channels;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -23,6 +24,7 @@ import Chat.system.Utility;
 public class LocalMessageChannelInput implements MutableMessageChannel
 {
 	private Set<MessageReceiver> members;
+	private HashMap<Player, Long> cooldown = new HashMap<>();
 	
 	public LocalMessageChannelInput()
 	{
@@ -62,15 +64,25 @@ public class LocalMessageChannelInput implements MutableMessageChannel
 	@Override
 	public Optional<Text> transformMessage(Object sender, MessageReceiver recipient, Text original, ChatType type)
 	{
-		Text text = original;
-		Collection<Entity> withinRange = Utility.getEntities((Player) sender, Main.confLocalDist);
-		if(this.members.contains(recipient) && withinRange.contains((Entity)recipient))
-			{
-				text = Text.of(TextColors.GRAY, "[Local]", text);
-				return Optional.of(text);
-			}
-		else
+		// Check cooldown
+		String msg = Utility.CommandCooldown((Player)sender, cooldown, Main.confLocalCD);
+		
+		if(msg == null)
 		{
+			Text text = original;
+			Collection<Entity> withinRange = Utility.getEntities((Player) sender, Main.confLocalDist);
+			if(this.members.contains(recipient) && withinRange.contains((Entity)recipient))
+				{
+					text = Text.of(TextColors.GRAY, "[Local]", text);
+					return Optional.of(text);
+				}
+			else
+			{
+				return Optional.empty();
+			}
+		} else
+		{
+			((Player)sender).sendMessage(Text.of(msg));
 			return Optional.empty();
 		}
 	}

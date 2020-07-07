@@ -150,39 +150,60 @@ public class Utility
 		}
 	}
 	
-	public static String CommandCooldown(Player player, HashMap<Player, Long> cooldown)
+	public static String CommandCooldown(Player player, HashMap<Player, Long> cooldown, long cdSeconds)
 	{
-		System.out.println("AAAAAAAAAAAAAAAAAAAAA " + cooldown.get(player));
 		int minuteCount = 0;
-		long cdMillis = 5000;
-		long time = 0;
+		long secondsRem = 0;
 		String msg = "";
-		
 		
 		if(cooldown.containsKey(player))
 		{
-			if(cooldown.get(player) + cdMillis > System.currentTimeMillis())
+			long playerCD = cooldown.get(player) / 1000;
+			long curTime = System.currentTimeMillis() / 1000;
+			
+			if(playerCD + cdSeconds > curTime)
 			{
-				time = cooldown.get(player) + cdMillis - System.currentTimeMillis();
-				time /= 1000;
+				secondsRem = playerCD + cdSeconds - curTime;
 				
-				System.out.println("Time: " + time);
-				
-				while(time >= 60)
+				while(secondsRem >= 60)
 				{
 					minuteCount++;
-					time -= 60;
+					secondsRem -= 60;
 				}
-				
-				if(time != 0)
+				// No minutes left, some seconds remaining
+				if(minuteCount == 0 && secondsRem > 0)
 				{
-					msg = "You must wait " + minuteCount + " minutes and " + time + " seconds to use this channel again.";
+					if(secondsRem == 1)
+						msg = "You must wait " + secondsRem + " second to use this channel again.";
+					else
+						msg = "You must wait " + secondsRem + " seconds to use this channel again.";
+				} else if (minuteCount > 0 && secondsRem > 0)
+				{ // Some minutes left, some seconds remaining
+					if(minuteCount == 1 && secondsRem != 1)
+						msg = "You must wait " + minuteCount + " minute and " + secondsRem + " seconds to use this channel again.";
+					else if(minuteCount == 1 && secondsRem == 1)
+						msg = "You must wait " + minuteCount + " minute and " + secondsRem + " second to use this channel again.";
+					else if(minuteCount != 1 && secondsRem == 1)
+						msg = "You must wait " + minuteCount + " minutes and " + secondsRem + " second to use this channel again.";
+					else
+						msg = "You must wait " + minuteCount + " minutes and " + secondsRem + " seconds to use this channel again.";
+				} else if (minuteCount > 0 && secondsRem == 0)
+				{ // Some minutes left, no seconds remaining
+					if(minuteCount == 1)
+						msg = "You must wait " + minuteCount + " minute to use this channel again.";
+					else
+						msg = "You must wait " + minuteCount + " minutes to use this channel again.";
 				} else
-					msg = "You must wait " + minuteCount + " minutes to use this channel again.";
+				{ // No minutes left, no seconds remaining
+					cooldown.remove(player);
+					cooldown.put(player, System.currentTimeMillis());
+					return null;
+				}
 				return msg;
 			} else
 			{
 				cooldown.remove(player);
+				cooldown.put(player, System.currentTimeMillis());
 				return null;
 			}
 		} else

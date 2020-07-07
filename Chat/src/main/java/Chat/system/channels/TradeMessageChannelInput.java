@@ -14,6 +14,7 @@ import org.spongepowered.api.text.channel.MutableMessageChannel;
 import org.spongepowered.api.text.chat.ChatType;
 import org.spongepowered.api.text.format.TextColors;
 
+import Chat.Main;
 import Chat.system.Utility;
 
 public class TradeMessageChannelInput implements MutableMessageChannel
@@ -60,7 +61,7 @@ public class TradeMessageChannelInput implements MutableMessageChannel
 	public Optional<Text> transformMessage(Object sender, MessageReceiver recipient, Text original, ChatType type)
 	{
 		// Check cooldown
-		String msg = Utility.CommandCooldown((Player)sender, cooldown);
+		String msg = Utility.CommandCooldown((Player)sender, cooldown, Main.confTradeCD);
 		
 		if(msg == null)
 		{
