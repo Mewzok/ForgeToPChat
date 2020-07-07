@@ -1,14 +1,30 @@
 package Chat.system;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import org.slf4j.Logger;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.message.MessageChannelEvent;
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.service.economy.EconomyService;
+import org.spongepowered.api.service.economy.account.UniqueAccount;
+import org.spongepowered.api.service.economy.transaction.ResultType;
+import org.spongepowered.api.service.economy.transaction.TransactionResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.channel.MessageReceiver;
@@ -18,6 +34,11 @@ import org.spongepowered.api.text.format.TextStyles;
 import Chat.Main;
 import Chat.Data.ChatData;
 import Chat.Data.ChatKeys;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
 public class Utility
 {
@@ -150,6 +171,7 @@ public class Utility
 		}
 	}
 	
+	// Cooldown manager begin
 	public static String CommandCooldown(Player player, HashMap<Player, Long> cooldown, long cdSeconds)
 	{
 		int minuteCount = 0;
@@ -212,4 +234,77 @@ public class Utility
 			return null;
 		}
 	}
+	// Cooldown manager end
+	
+	// Cost manager begin
+	public static TransactionResult MessageCost(EconomyService economyService, Player player, double amount)
+	{
+		BigDecimal amt = BigDecimal.valueOf(amount);
+		
+		Optional<UniqueAccount> uOpt = economyService.getOrCreateAccount(player.getUniqueId());
+		if(uOpt.isPresent())
+		{
+			UniqueAccount acc = uOpt.get();
+			
+			TransactionResult result = acc.withdraw(economyService.getDefaultCurrency(), amt, Sponge.getCauseStackManager().getCurrentCause());
+			return result;
+		}
+		return null;
+	}
+	// Cost manager end
+	
+	// Config handler begin
+	public static Config ConfigHandler(Game game, PluginContainer plugin, Config config, Path path, ConfigurationLoader<CommentedConfigurationNode> loader,
+			Logger logger) throws IOException, ObjectMappingException
+	{
+		Asset conf = game.getAssetManager().getAsset(plugin, "config.conf").get();
+		ConfigurationNode root;
+		try 
+		{
+			// Creates config directory
+			if(!Files.exists(path))
+			{
+				conf.copyToFile(path);
+			}
+			root = loader.load();
+			if (root.getNode("version").getInt() < 4)
+			{
+				root.mergeValuesFrom(loadDefault(game, plugin, loader));
+				root.getNode("version").setValue(4);
+				loader.save(root);
+			}
+			config = root.getValue(Config.type);
+			
+			return config;
+		} catch(IOException ex)
+		{
+			logger.error("Error loading config.");
+			throw ex;
+		} catch (ObjectMappingException ex) 
+		{
+            logger.error("Invalid config file.");
+            mapDefault(config, game, logger, plugin, loader);
+            throw ex;
+        }
+	}
+	
+    public static void mapDefault(Config config, Game game, Logger logger, PluginContainer plugin, ConfigurationLoader<CommentedConfigurationNode> loader)
+    		throws IOException, ObjectMappingException 
+    {
+        try 
+        {
+            config = loadDefault(game, plugin, loader).getValue(Config.type);
+        } catch (IOException | ObjectMappingException ex) 
+        {
+            logger.error("Could not load the embedded default config. Disabling plugin.");
+            game.getEventManager().unregisterPluginListeners(plugin);
+            throw ex;
+        } 
+    }
+	
+	public static ConfigurationNode loadDefault(Game game, PluginContainer plugin, ConfigurationLoader<CommentedConfigurationNode> loader) throws IOException
+	{
+		return HoconConfigurationLoader.builder().setURL(game.getAssetManager().getAsset(plugin, "config.conf").get().getUrl()).build().load(loader.getDefaultOptions());
+	}
+	// Config handler end
 }

@@ -1,12 +1,16 @@
 package Chat;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
+
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.asset.Asset;
+import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.data.DataRegistration;
@@ -22,11 +26,12 @@ import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.service.ChangeServiceProviderEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.text.Text;
 
-import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
 import Chat.Commands.SetLocalChatViewOff;
 import Chat.Commands.SetLocalChatViewOn;
@@ -50,16 +55,16 @@ import Chat.system.channels.LocalMessageChannelInput;
 import Chat.system.channels.SystemMessageChannelInput;
 import Chat.system.channels.TradeMessageChannelInput;
 import Chat.system.channels.WorldMessageChannelInput;
-import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
-import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 
 @Plugin(id = "topchat", name = "Chat", version = "1.0", description = "Chat")
 public class Main
 {
+	@Inject
+	PluginContainer container;
+	
 	private static Logger logger;
 	public static WorldMessageChannelInput wmci = new WorldMessageChannelInput();
 	public static TradeMessageChannelInput tmci = new TradeMessageChannelInput();
@@ -68,11 +73,13 @@ public class Main
 	
 	public static int confLocalDist;
 	public static long confLocalCD;
-	public static long confLocalCost;
+	public static double confLocalCost;
 	public static long confTradeCD;
-	public static long confTradeCost;
+	public static double confTradeCost;
 	public static long confWorldCD;
-	public static long confWorldCost;
+	public static double confWorldCost;
+	
+	public static EconomyService economyService;
 	
 	public static Logger getLogger()
 	{
@@ -81,9 +88,6 @@ public class Main
 	
 	@Inject
 	Game game;
-	
-	@Inject
-	PluginContainer container;
 	
 	
 // Configuration items
@@ -148,6 +152,10 @@ public class Main
 			.child(smsCommandSpec, "system", "s")
 			.executor(new SetMode())
 			.build();
+	CommandSpec tcrCommandSpec = CommandSpec.builder()
+			.description(Text.of("Reloads the ToPChat config."))
+			.executor(new TopChatReload())
+			.build();
 	
 	@Listener
 	public void preInit(GamePreInitializationEvent e) throws IOException, ObjectMappingException
@@ -161,61 +169,17 @@ public class Main
 		.builder(new ChatDataBuilder())
 		.buildAndRegister(container);
 		
-// Config handler	
-		Asset conf = game.getAssetManager().getAsset(this, "config.conf").get();
-		ConfigurationNode root;
-		try 
-		{
-			// Creates config directory
-			if(!Files.exists(path))
-			{
-				conf.copyToFile(path);
-			}
-			root = loader.load();
-			if (root.getNode("version").getInt() < 4)
-			{
-				root.mergeValuesFrom(loadDefault());
-				root.getNode("version").setValue(4);
-				loader.save(root);
-			}
-			config = root.getValue(Config.type);
-			System.out.println("AAAAAAAAAAAAAAA: " + config.tradeInfo.cooldown);
-			confLocalDist = config.localInfo.distance;
-			confLocalCD = config.localInfo.cooldown;
-			confLocalCost = config.localInfo.cost;
-			confTradeCD = config.tradeInfo.cooldown;
-			confTradeCost = config.tradeInfo.cost;
-			confWorldCD = config.worldInfo.cooldown;
-			confWorldCost = config.worldInfo.cost;
-		} catch(IOException ex)
-		{
-			logger.error("Error loading config.");
-			throw ex;
-		} catch (ObjectMappingException ex) 
-		{
-            logger.error("Invalid config file.");
-            mapDefault();
-            throw ex;
-        }
-	}
+		config = Utility.ConfigHandler(game, container, config, path, loader, logger);
 		
-	    private void mapDefault() throws IOException, ObjectMappingException 
-	    {
-	        try 
-	        {
-	            config = loadDefault().getValue(Config.type);
-	        } catch (IOException | ObjectMappingException ex) 
-	        {
-	            logger.error("Could not load the embedded default config. Disabling plugin.");
-	            game.getEventManager().unregisterPluginListeners(this);
-	            throw ex;
-	        } 
+		confLocalDist = config.localInfo.distance;
+		confLocalCD = config.localInfo.cooldown;
+		confLocalCost = config.localInfo.cost;
+		confTradeCD = config.tradeInfo.cooldown;
+		confTradeCost = config.tradeInfo.cost;
+		confWorldCD = config.worldInfo.cooldown;
+		confWorldCost = config.worldInfo.cost;
 	}
 	
-	private ConfigurationNode loadDefault() throws IOException
-	{
-		return HoconConfigurationLoader.builder().setURL(game.getAssetManager().getAsset(this, "config.conf").get().getUrl()).build().load(loader.getDefaultOptions());
-	}
 // End of config handler
 	
 	@Listener
@@ -230,6 +194,7 @@ public class Main
 		Sponge.getCommandManager().register(this, lcvoCommandSpec, "localchatoff", "lcoff");
 		Sponge.getCommandManager().register(this, vcsCommandSpec, "chatstats", "viewchatstats", "chats");
 		Sponge.getCommandManager().register(this, smCommandSpec, "chat", "mode", "chatmode");
+		Sponge.getCommandManager().register(this, tcrCommandSpec, "topchatreload", "tcr", "chatreload");
 	}
 	
 	@Listener
@@ -245,6 +210,15 @@ public class Main
 		
 		smci.addMember(player);
 	} 
+	
+	@Listener
+	public void onChangeServiceProvider(ChangeServiceProviderEvent e)
+	{
+		if(e.getService().equals(EconomyService.class))
+		{
+			economyService = (EconomyService) e.getNewProviderRegistration().getProvider();
+		}
+	}
 	
 	@Listener
 	public void messageSent(MessageChannelEvent.Chat e)
@@ -320,4 +294,33 @@ public class Main
 			throw ex;
 		}
 	}
+	
+	// Chat reload command
+	public class TopChatReload implements CommandExecutor
+	{
+
+		@Override
+		public CommandResult execute(CommandSource src, CommandContext args) throws CommandException
+		{
+			try
+			{
+				config = Utility.ConfigHandler(game, container, config, path, loader, logger);
+				
+				confLocalDist = config.localInfo.distance;
+				confLocalCD = config.localInfo.cooldown;
+				confLocalCost = config.localInfo.cost;
+				confTradeCD = config.tradeInfo.cooldown;
+				confTradeCost = config.tradeInfo.cost;
+				confWorldCD = config.worldInfo.cooldown;
+				confWorldCost = config.worldInfo.cost;
+				
+				src.sendMessage(Text.of("ToPChat config reloaded."));
+			} catch (IOException | ObjectMappingException e)
+			{
+				logger.error("Failed to reload config.");
+				e.printStackTrace();
+			}
+			return CommandResult.success();
+		}
+	} // Chat reload command end
 }
