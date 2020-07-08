@@ -1,8 +1,9 @@
 package Chat;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Path;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
@@ -35,6 +36,7 @@ import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.text.Text;
 
 import com.google.inject.Inject;
+
 import Chat.Commands.SetLocalChatViewOff;
 import Chat.Commands.SetLocalChatViewOn;
 import Chat.Commands.SetTradeChatViewOff;
@@ -42,6 +44,12 @@ import Chat.Commands.SetTradeChatViewOn;
 import Chat.Commands.SetWorldChatViewOff;
 import Chat.Commands.SetWorldChatViewOn;
 import Chat.Commands.ViewChatStats;
+import Chat.Commands.ChatInfo.ChatInfo;
+import Chat.Commands.ChatInfo.ChatInfoLocal;
+import Chat.Commands.ChatInfo.ChatInfoSystem;
+import Chat.Commands.ChatInfo.ChatInfoTrade;
+import Chat.Commands.ChatInfo.ChatInfoWorld;
+import Chat.Commands.SetMode.ChatHelp;
 import Chat.Commands.SetMode.SetMode;
 import Chat.Commands.SetMode.SetModeLocal;
 import Chat.Commands.SetMode.SetModeSystem;
@@ -75,11 +83,11 @@ public class Main
 	
 	public static int confLocalDist;
 	public static long confLocalCD;
-	public static double confLocalCost;
+	public static BigDecimal confLocalCost;
 	public static long confTradeCD;
-	public static double confTradeCost;
+	public static BigDecimal confTradeCost;
 	public static long confWorldCD;
-	public static double confWorldCost;
+	public static BigDecimal confWorldCost;
 	
 	public static EconomyService economyService;
 	
@@ -146,12 +154,48 @@ public class Main
 			.executor(new SetModeSystem())
 			.permission("Chat.adminthing")
 			.build();
+	CommandSpec tchCommandSpec = CommandSpec.builder()
+			.description(Text.of("Displays all ToPChat commands."))
+			.executor(new ChatHelp())
+			.build();
+	// chat info local
+	CommandSpec cilCommandSpec = CommandSpec.builder()
+			.description(Text.of("Displays information about local chat."))
+			.executor(new ChatInfoLocal())
+			.build();
+	// chat info trade
+	CommandSpec citCommandSpec = CommandSpec.builder()
+			.description(Text.of("Displays information about trade chat."))
+			.executor(new ChatInfoTrade())
+			.build();
+	// chat info world
+	CommandSpec ciwCommandSpec = CommandSpec.builder()
+			.description(Text.of("Displays information about world chat."))
+			.executor(new ChatInfoWorld())
+			.build();
+	// chat info system
+	CommandSpec cisCommandSpec = CommandSpec.builder()
+			.description(Text.of("Displays information about system chat."))
+			.executor(new ChatInfoSystem())
+			.build();
+	// chat info
+	CommandSpec ciCommandSpec = CommandSpec.builder()
+			.description(Text.of("Displays general information about ToPChat."))
+			.child(cilCommandSpec, "local", "l")
+			.child(citCommandSpec, "trade", "l")
+			.child(ciwCommandSpec, "world", "w")
+			.child(cisCommandSpec, "system", "s")
+			.executor(new ChatInfo())
+			.build();
+	// chat
 	CommandSpec smCommandSpec = CommandSpec.builder()
-			.description(Text.of("Sets the current chat mode."))
+			.description(Text.of("Sets the current chat mode or provides help."))
 			.child(smwCommandSpec, "world", "w")
 			.child(smtCommandSpec, "trade", "t")
 			.child(smlCommandSpec, "local", "l")
 			.child(smsCommandSpec, "system", "s")
+			.child(tchCommandSpec, "topchathelp", "chathelp", "help")
+			.child(ciCommandSpec, "info", "information")
 			.executor(new SetMode())
 			.build();
 	CommandSpec tcrCommandSpec = CommandSpec.builder()
@@ -175,14 +219,12 @@ public class Main
 		
 		confLocalDist = config.localInfo.distance;
 		confLocalCD = config.localInfo.cooldown;
-		confLocalCost = config.localInfo.cost;
+		confLocalCost = BigDecimal.valueOf(config.localInfo.cost).setScale(2, RoundingMode.HALF_UP);
 		confTradeCD = config.tradeInfo.cooldown;
-		confTradeCost = config.tradeInfo.cost;
+		confTradeCost = BigDecimal.valueOf(config.tradeInfo.cost).setScale(2, RoundingMode.HALF_UP);
 		confWorldCD = config.worldInfo.cooldown;
-		confWorldCost = config.worldInfo.cost;
+		confWorldCost = BigDecimal.valueOf(config.worldInfo.cost).setScale(2, RoundingMode.HALF_UP);
 	}
-	
-// End of config handler
 	
 	@Listener
 	public void init(GameInitializationEvent e)
@@ -195,7 +237,7 @@ public class Main
 		Sponge.getCommandManager().register(this, lcviCommandSpec, "localchaton", "lcon", "localchat", "lc");
 		Sponge.getCommandManager().register(this, lcvoCommandSpec, "localchatoff", "lcoff");
 		Sponge.getCommandManager().register(this, vcsCommandSpec, "chatstats", "viewchatstats", "chats");
-		Sponge.getCommandManager().register(this, smCommandSpec, "chat", "mode", "chatmode");
+		Sponge.getCommandManager().register(this, smCommandSpec, "mode", "cm", "chat");
 		Sponge.getCommandManager().register(this, tcrCommandSpec, "topchatreload", "tcr", "chatreload");
 	}
 	
@@ -316,11 +358,11 @@ public class Main
 				
 				confLocalDist = config.localInfo.distance;
 				confLocalCD = config.localInfo.cooldown;
-				confLocalCost = config.localInfo.cost;
+				confLocalCost = BigDecimal.valueOf(config.localInfo.cost).setScale(2, RoundingMode.HALF_UP);
 				confTradeCD = config.tradeInfo.cooldown;
-				confTradeCost = config.tradeInfo.cost;
+				confTradeCost = BigDecimal.valueOf(config.tradeInfo.cost).setScale(2, RoundingMode.HALF_UP);
 				confWorldCD = config.worldInfo.cooldown;
-				confWorldCost = config.worldInfo.cost;
+				confWorldCost = BigDecimal.valueOf(config.worldInfo.cost).setScale(2, RoundingMode.HALF_UP);
 				
 				src.sendMessage(Text.of("ToPChat config reloaded."));
 			} catch (IOException | ObjectMappingException e)

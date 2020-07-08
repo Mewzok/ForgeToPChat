@@ -85,6 +85,16 @@ public class Utility
 		return msg;
 	}
 	
+	public static Text serverChatState()
+	{
+		Text msg = Text.of("Local chat: \n\tDistance: " + Main.confLocalDist + " blocks\n\tCooldown: " + Main.confLocalCD + " seconds\n\tCost: $" + Main.confLocalCost
+				+ " per message\n"
+				+ "Trade chat: \n\tCooldown: " + Main.confTradeCD + " seconds.\n\tCost: $" + Main.confTradeCost + " per message\n"
+				+ "World chat: \n\tCooldown: " + Main.confWorldCD + " seconds.\n\tCost: $" + Main.confWorldCost + " per message");
+		
+		return msg;
+	}
+	
 	public static String ChatDefinition(MessageChannelEvent.Chat e)
 	{
 		Optional<String> mode;
@@ -237,16 +247,14 @@ public class Utility
 	// Cooldown manager end
 	
 	// Cost manager begin
-	public static TransactionResult MessageCost(EconomyService economyService, Player player, double amount)
+	public static TransactionResult MessageCost(EconomyService economyService, Player player, BigDecimal amount)
 	{
-		BigDecimal amt = BigDecimal.valueOf(amount);
-		
 		Optional<UniqueAccount> uOpt = economyService.getOrCreateAccount(player.getUniqueId());
 		if(uOpt.isPresent())
 		{
 			UniqueAccount acc = uOpt.get();
 			
-			TransactionResult result = acc.withdraw(economyService.getDefaultCurrency(), amt, Sponge.getCauseStackManager().getCurrentCause());
+			TransactionResult result = acc.withdraw(economyService.getDefaultCurrency(), amount, Sponge.getCauseStackManager().getCurrentCause());
 			return result;
 		}
 		return null;

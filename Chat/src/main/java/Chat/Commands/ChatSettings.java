@@ -1,23 +1,21 @@
-package Chat.Commands.SetMode;
+package Chat.Commands;
 
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import Chat.system.Utility;
 
-public class SetMode implements CommandExecutor
+public class ChatSettings implements CommandExecutor
 {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException
 	{
-		if(src instanceof Player)
-		{
-			src.sendMessage(Text.of("Improper command usage. Use /chat help for a list of commands or /chat <chat-mode> to change chat mode."));
-		}
+		Text msg = Utility.serverChatState();
+		src.sendMessage(msg);
 		return CommandResult.success();
 	}
 

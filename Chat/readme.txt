@@ -1,2 +1,1 @@
-Change Chat command to mode, use Chat command as main information/control command
-add more information, such as chat help for general usage and information on login display
+Figure out how permissions work and implement them, specifically for using system chat.

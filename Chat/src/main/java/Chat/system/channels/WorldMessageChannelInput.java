@@ -71,8 +71,7 @@ public class WorldMessageChannelInput implements MutableMessageChannel
 	{
 		Optional<EconomyService> serviceOpt = Sponge.getServiceManager().provide(EconomyService.class);
 		EconomyService ecoService = Main.economyService;
-		double amount = Main.confWorldCost;
-		BigDecimal amt = new BigDecimal(amount).setScale(2, RoundingMode.HALF_UP);
+		BigDecimal amount = Main.confWorldCost;
 		
 		// Check cost if economy plugin is found
 		if(serviceOpt.isPresent())
@@ -82,12 +81,12 @@ public class WorldMessageChannelInput implements MutableMessageChannel
 			if(result.getResult() != ResultType.SUCCESS)
 			{	
 				((Player)sender).sendMessage(Text.of(TextColors.RED, TextStyles.ITALIC, "You don't have enough money. Speaking in this channel currently costs $" +
-				amt + " per message."));
+				amount + " per message."));
 				return Optional.empty();
 			} else 
 			{
-				if(amount != 0.0)
-					((Player) sender).sendMessage(Text.of(TextColors.DARK_GRAY, TextStyles.ITALIC, "$" + amt + " deducted."));
+				if(amount.doubleValue() != 0.0)
+					((Player) sender).sendMessage(Text.of(TextColors.DARK_GRAY, TextStyles.ITALIC, "$" + amount + " deducted."));
 			}
 		}
 		// Check cooldown
