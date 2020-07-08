@@ -307,4 +307,16 @@ public class Utility
 		return HoconConfigurationLoader.builder().setURL(game.getAssetManager().getAsset(plugin, "config.conf").get().getUrl()).build().load(loader.getDefaultOptions());
 	}
 	// Config handler end
+	
+	//Cost handler begin
+	public static void testForEco()
+	{
+		Optional<EconomyService> serviceOpt = Sponge.getServiceManager().provide(EconomyService.class);
+		if(!serviceOpt.isPresent())
+		{
+			System.out.println("No economy plugin found. Chat costs disabled.");
+		} else
+			System.out.println("Economy plugin found. Chat costs enabled.");
+	}
+	//Cost handler end
 }

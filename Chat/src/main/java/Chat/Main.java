@@ -2,6 +2,7 @@ package Chat;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
@@ -22,6 +23,7 @@ import org.spongepowered.api.event.entity.living.humanoid.player.KickPlayerEvent
 import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.data.Has;
 import org.spongepowered.api.event.game.GameReloadEvent;
+import org.spongepowered.api.event.game.state.GameAboutToStartServerEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
@@ -195,6 +197,12 @@ public class Main
 		Sponge.getCommandManager().register(this, vcsCommandSpec, "chatstats", "viewchatstats", "chats");
 		Sponge.getCommandManager().register(this, smCommandSpec, "chat", "mode", "chatmode");
 		Sponge.getCommandManager().register(this, tcrCommandSpec, "topchatreload", "tcr", "chatreload");
+	}
+	
+	@Listener
+	public void onGameAboutToStartServer(GameAboutToStartServerEvent e)
+	{
+		Utility.testForEco();
 	}
 	
 	@Listener

@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.economy.EconomyService;
@@ -68,38 +69,41 @@ public class WorldMessageChannelInput implements MutableMessageChannel
 	@Override
 	public Optional<Text> transformMessage(Object sender, MessageReceiver recipient, Text original, ChatType type)
 	{
+		Optional<EconomyService> serviceOpt = Sponge.getServiceManager().provide(EconomyService.class);
 		EconomyService ecoService = Main.economyService;
 		double amount = Main.confWorldCost;
 		BigDecimal amt = new BigDecimal(amount).setScale(2, RoundingMode.HALF_UP);
 		
-		// Check cost
-		TransactionResult result = Utility.MessageCost(ecoService, (Player)sender, amount);
-		if(result.getResult() == ResultType.SUCCESS)
-		{	
-			// Check cooldown
-			String msg = Utility.CommandCooldown((Player)sender, cooldown, Main.confWorldCD);
+		// Check cost if economy plugin is found
+		if(serviceOpt.isPresent())
+		{
+			TransactionResult result = Utility.MessageCost(ecoService, (Player)sender, amount);
 			
-			if(msg == null)
-			{
-				Text text = original;
-				if(this.members.contains(recipient))
-				{
-					text = Text.of("[World]", text);
-				}
-				if(amount != 0.0)
-				{
-					((Player) sender).sendMessage(Text.of(TextColors.DARK_GRAY, TextStyles.ITALIC, "$" + amt + " deducted."));
-				}
-				return Optional.of(text);
-			} else
-			{ // Return empty due to still on cooldown
-				((Player) sender).sendMessage(Text.of(msg));
+			if(result.getResult() != ResultType.SUCCESS)
+			{	
+				((Player)sender).sendMessage(Text.of(TextColors.RED, TextStyles.ITALIC, "You don't have enough money. Speaking in this channel currently costs $" +
+				amt + " per message."));
 				return Optional.empty();
+			} else 
+			{
+				if(amount != 0.0)
+					((Player) sender).sendMessage(Text.of(TextColors.DARK_GRAY, TextStyles.ITALIC, "$" + amt + " deducted."));
 			}
-		} else 
-		{ // return empty due to money failure
-			((Player)sender).sendMessage(Text.of(TextColors.RED, TextStyles.ITALIC, "You don't have enough money. Speaking in this channel currently costs $" +
-			amt + " per message."));
+		}
+		// Check cooldown
+		String msg = Utility.CommandCooldown((Player)sender, cooldown, Main.confWorldCD);
+		
+		if(msg == null)
+		{
+			Text text = original;
+			if(this.members.contains(recipient))
+			{
+				text = Text.of("[World]", text);
+			}
+			return Optional.of(text);
+		} else
+		{ // Return empty due to still on cooldown
+			((Player) sender).sendMessage(Text.of(msg));
 			return Optional.empty();
 		}
 	}
