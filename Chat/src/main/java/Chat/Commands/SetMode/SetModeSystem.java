@@ -19,9 +19,12 @@ public class SetModeSystem implements CommandExecutor
 	{
 		if(src instanceof Player)
 		{
-			((Player)src).offer(ChatKeys.MODE, "System");
-			Text msg = Text.of(TextColors.BLUE, TextStyles.BOLD, "system");
-			src.sendMessage(Text.of("You are now typing in ", msg, " chat."));
+			if(((Player)src).hasPermission("topchat.command.setmodesystem"))
+			{
+				((Player)src).offer(ChatKeys.MODE, "System");
+				Text msg = Text.of(TextColors.BLUE, TextStyles.BOLD, "system");
+				src.sendMessage(Text.of("You are now typing in ", msg, " chat."));
+			}
 		}
 		return CommandResult.success();
 	}

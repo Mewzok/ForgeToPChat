@@ -19,9 +19,12 @@ public class SetModeLocal implements CommandExecutor
 	{
 		if(src instanceof Player)
 		{
-			((Player)src).offer(ChatKeys.MODE, "Local");
-			Text msg = Text.of(TextColors.GRAY, TextStyles.BOLD, "local");
-			src.sendMessage(Text.of("You are now typing in ", msg, " chat."));
+			if(((Player)src).hasPermission("topchat.command.setmodelocal"))
+			{
+				((Player)src).offer(ChatKeys.MODE, "Local");
+				Text msg = Text.of(TextColors.GRAY, TextStyles.BOLD, "local");
+				src.sendMessage(Text.of("You are now typing in ", msg, " chat."));
+			}
 		}
 		return CommandResult.success();
 	}

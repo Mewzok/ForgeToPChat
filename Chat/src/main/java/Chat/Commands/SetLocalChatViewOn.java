@@ -26,13 +26,16 @@ public class SetLocalChatViewOn implements CommandExecutor
 	{
 		if(src instanceof Player)
 		{
-			Optional<ChatData> chatOptional = ((CompositeValueStore<DataHolder, DataManipulator<?, ?>>) src).get(ChatData.class);
-			if(chatOptional.isPresent())
+			if(((Player)src).hasPermission("topchat.command.setlocalchatviewon"))
 			{
-				((Player) src).offer(ChatKeys.LOCAL_ON, true);
-				Main.lmci.addMember(src);
-				Text on = Text.of(TextColors.GREEN, TextStyles.ITALIC, "on");
-				src.sendMessage(Text.of("Local chat ", on, "."));
+				Optional<ChatData> chatOptional = ((CompositeValueStore<DataHolder, DataManipulator<?, ?>>) src).get(ChatData.class);
+				if(chatOptional.isPresent())
+				{
+					((Player) src).offer(ChatKeys.LOCAL_ON, true);
+					Main.lmci.addMember(src);
+					Text on = Text.of(TextColors.GREEN, TextStyles.ITALIC, "on");
+					src.sendMessage(Text.of("Local chat ", on, "."));
+				}
 			}
 		}
 		return CommandResult.success();

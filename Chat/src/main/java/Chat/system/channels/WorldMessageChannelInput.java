@@ -69,40 +69,13 @@ public class WorldMessageChannelInput implements MutableMessageChannel
 	@Override
 	public Optional<Text> transformMessage(Object sender, MessageReceiver recipient, Text original, ChatType type)
 	{
-		Optional<EconomyService> serviceOpt = Sponge.getServiceManager().provide(EconomyService.class);
-		EconomyService ecoService = Main.economyService;
-		BigDecimal amount = Main.confWorldCost;
-		
-		// Check cost if economy plugin is found
-		if(serviceOpt.isPresent())
+		Text text = original;
+		if(this.members.contains(recipient))
 		{
-			TransactionResult result = Utility.MessageCost(ecoService, (Player)sender, amount);
-			
-			if(result.getResult() != ResultType.SUCCESS)
-			{	
-				((Player)sender).sendMessage(Text.of(TextColors.RED, TextStyles.ITALIC, "You don't have enough money. Speaking in this channel currently costs $" +
-				amount + " per message."));
-				return Optional.empty();
-			} else 
-			{
-				if(amount.doubleValue() != 0.0)
-					((Player) sender).sendMessage(Text.of(TextColors.DARK_GRAY, TextStyles.ITALIC, "$" + amount + " deducted."));
-			}
-		}
-		// Check cooldown
-		String msg = Utility.CommandCooldown((Player)sender, cooldown, Main.confWorldCD);
-		
-		if(msg == null)
-		{
-			Text text = original;
-			if(this.members.contains(recipient))
-			{
-				text = Text.of("[World]", text);
-			}
+			text = Text.of("[World]", text);
 			return Optional.of(text);
 		} else
-		{ // Return empty due to still on cooldown
-			((Player) sender).sendMessage(Text.of(msg));
+		{
 			return Optional.empty();
 		}
 	}

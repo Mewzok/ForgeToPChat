@@ -18,24 +18,28 @@ import org.spongepowered.api.text.format.TextStyles;
 import Chat.Main;
 import Chat.Data.ChatData;
 import Chat.Data.ChatKeys;
-import Chat.system.channels.WorldMessageChannelInput;
 
-public class SetWorldChatViewOff implements CommandExecutor
+public class SetAllChatViewOff implements CommandExecutor
 {
+
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException
 	{
 		if(src instanceof Player)
 		{
-			if(((Player)src).hasPermission("topchat.command.setworldchatviewoff"))
+			if(((Player)src).hasPermission("topchat.command.setallchatviewoff"))
 			{
 				Optional<ChatData> chatOptional = ((CompositeValueStore<DataHolder, DataManipulator<?, ?>>) src).get(ChatData.class);
 				if(chatOptional.isPresent())
 				{
 					((Player) src).offer(ChatKeys.WORLD_ON, false);
+					((Player) src).offer(ChatKeys.TRADE_ON, false);
+					((Player) src).offer(ChatKeys.LOCAL_ON, false);
 					Main.wmci.removeMember(src);
+					Main.tmci.removeMember(src);
+					Main.lmci.removeMember(src);
 					Text off = Text.of(TextColors.RED, TextStyles.ITALIC, "off");
-					src.sendMessage(Text.of("World chat ", off, "."));
+					src.sendMessage(Text.of("All chat channels ", off, "."));
 				}
 			}
 		}

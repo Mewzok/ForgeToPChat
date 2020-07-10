@@ -26,13 +26,16 @@ public class SetTradeChatViewOn implements CommandExecutor
 	{
 		if(src instanceof Player)
 		{
-			Optional<ChatData> chatOptional = ((CompositeValueStore<DataHolder, DataManipulator<?, ?>>) src).get(ChatData.class);
-			if(chatOptional.isPresent())
+			if(((Player)src).hasPermission("topchat.command.settradechatviewon"))
 			{
-				((Player) src).offer(ChatKeys.TRADE_ON, true);
-				Main.tmci.addMember(src);
-				Text on = Text.of(TextColors.GREEN, TextStyles.ITALIC, "on");
-				src.sendMessage(Text.of("Trade chat ", on, "."));
+				Optional<ChatData> chatOptional = ((CompositeValueStore<DataHolder, DataManipulator<?, ?>>) src).get(ChatData.class);
+				if(chatOptional.isPresent())
+				{
+					((Player) src).offer(ChatKeys.TRADE_ON, true);
+					Main.tmci.addMember(src);
+					Text on = Text.of(TextColors.GREEN, TextStyles.ITALIC, "on");
+					src.sendMessage(Text.of("Trade chat ", on, "."));
+				}
 			}
 		}
 		return CommandResult.success();

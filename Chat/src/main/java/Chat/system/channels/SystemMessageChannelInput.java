@@ -57,7 +57,7 @@ public class SystemMessageChannelInput implements MutableMessageChannel
 		Text text = original;
 		if(this.members.contains(recipient))
 		{
-			text = Text.of(TextColors.LIGHT_PURPLE, "[System] ", text);
+			text = Text.of(TextColors.LIGHT_PURPLE, "[System]", text);
 		}
 		return Optional.of(text);
 	}

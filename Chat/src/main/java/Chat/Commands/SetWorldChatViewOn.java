@@ -29,13 +29,16 @@ public class SetWorldChatViewOn implements CommandExecutor
 	{
 		if(src instanceof Player)
 		{
-			Optional<ChatData> chatOptional = ((CompositeValueStore<DataHolder, DataManipulator<?, ?>>) src).get(ChatData.class);
-			if(chatOptional.isPresent())
+			if(((Player)src).hasPermission("topchat.command.setworldchatviewon"))
 			{
-				((Player) src).offer(ChatKeys.WORLD_ON, true);
-				Main.wmci.addMember(src);
-				Text on = Text.of(TextColors.GREEN, TextStyles.ITALIC, "on");
-				src.sendMessage(Text.of("World chat ", on, "."));
+				Optional<ChatData> chatOptional = ((CompositeValueStore<DataHolder, DataManipulator<?, ?>>) src).get(ChatData.class);
+				if(chatOptional.isPresent())
+				{
+					((Player) src).offer(ChatKeys.WORLD_ON, true);
+					Main.wmci.addMember(src);
+					Text on = Text.of(TextColors.GREEN, TextStyles.ITALIC, "on");
+					src.sendMessage(Text.of("World chat ", on, "."));
+				}
 			}
 		}
 		return CommandResult.success();

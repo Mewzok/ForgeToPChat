@@ -16,8 +16,12 @@ public class SetMode implements CommandExecutor
 	{
 		if(src instanceof Player)
 		{
+			if(((Player)src).hasPermission("topchat.command.setmode"))
+			{
+				src.sendMessage(Text.of("Improper command usage. Use /chat help for a list of commands or /chat <chat-mode> to change chat mode."));
+			}
+		} else
 			src.sendMessage(Text.of("Improper command usage. Use /chat help for a list of commands or /chat <chat-mode> to change chat mode."));
-		}
 		return CommandResult.success();
 	}
 

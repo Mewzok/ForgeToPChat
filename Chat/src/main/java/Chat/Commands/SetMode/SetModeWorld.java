@@ -19,9 +19,12 @@ public class SetModeWorld implements CommandExecutor
 	{
 		if(src instanceof Player)
 		{
-			((Player)src).offer(ChatKeys.MODE, "World");
-			Text msg = Text.of(TextColors.WHITE, TextStyles.BOLD, "world");
-			src.sendMessage(Text.of("You are now typing in ", msg, " chat."));
+			if(((Player)src).hasPermission("topchat.command.setmodeworld"))
+			{
+				((Player)src).offer(ChatKeys.MODE, "World");
+				Text msg = Text.of(TextColors.WHITE, TextStyles.BOLD, "world");
+				src.sendMessage(Text.of("You are now typing in ", msg, " chat."));
+			}
 		}
 		return CommandResult.success();
 	}

@@ -18,11 +18,14 @@ public class ViewChatStats implements CommandExecutor
 	{
 		if(src instanceof Player)
 		{
-			Text msg;
-			
-			msg = Utility.chatStateBuilder((Player)src);
-			
-			src.sendMessage(msg);
+			if(((Player)src).hasPermission("topchat.command.viewchatstats"))
+			{
+				Text msg;
+				
+				msg = Utility.chatStateBuilder((Player)src);
+				
+				src.sendMessage(msg);
+			}
 		}
 		
 		return CommandResult.success();

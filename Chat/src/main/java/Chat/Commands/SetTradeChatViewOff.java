@@ -26,13 +26,16 @@ public class SetTradeChatViewOff implements CommandExecutor
 	{
 		if(src instanceof Player)
 		{
-			Optional<ChatData> chatOptional = ((CompositeValueStore<DataHolder, DataManipulator<?, ?>>) src).get(ChatData.class);
-			if(chatOptional.isPresent())
+			if(((Player)src).hasPermission("topchat.command.settradechatviewoff"))
 			{
-				((Player) src).offer(ChatKeys.TRADE_ON, false);
-				Main.tmci.removeMember(src);
-				Text off = Text.of(TextColors.RED, TextStyles.ITALIC, "off");
-				src.sendMessage(Text.of("Trade chat ", off, "."));
+				Optional<ChatData> chatOptional = ((CompositeValueStore<DataHolder, DataManipulator<?, ?>>) src).get(ChatData.class);
+				if(chatOptional.isPresent())
+				{
+					((Player) src).offer(ChatKeys.TRADE_ON, false);
+					Main.tmci.removeMember(src);
+					Text off = Text.of(TextColors.RED, TextStyles.ITALIC, "off");
+					src.sendMessage(Text.of("Trade chat ", off, "."));
+				}
 			}
 		}
 		return CommandResult.success();

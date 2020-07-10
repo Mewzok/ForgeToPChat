@@ -19,9 +19,12 @@ public class SetModeTrade implements CommandExecutor
 	{
 		if(src instanceof Player)
 		{
-			((Player)src).offer(ChatKeys.MODE, "Trade");
-			Text msg = Text.of(TextColors.AQUA, TextStyles.BOLD, "trade");
-			src.sendMessage(Text.of("You are now typing in ", msg, " chat."));
+			if(((Player)src).hasPermission("topchat.command.setmodetrade"))
+			{
+				((Player)src).offer(ChatKeys.MODE, "Trade");
+				Text msg = Text.of(TextColors.AQUA, TextStyles.BOLD, "trade");
+				src.sendMessage(Text.of("You are now typing in ", msg, " chat."));
+			}
 		}
 		return CommandResult.success();
 	}

@@ -42,6 +42,11 @@ import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
 public class Utility
 {
+	// Message condition variables
+	private static HashMap<Player, Long> worldCooldown = new HashMap<>();
+	private static HashMap<Player, Long> tradeCooldown = new HashMap<>();
+	private static HashMap<Player, Long> localCooldown = new HashMap<>();
+	// Message condition variables end
 	public static Text chatStateBuilder(Player player)
 	{
 		Text msg;
@@ -87,10 +92,12 @@ public class Utility
 	
 	public static Text serverChatState()
 	{
-		Text msg = Text.of("Local chat: \n\tDistance: " + Main.confLocalDist + " blocks\n\tCooldown: " + Main.confLocalCD + " seconds\n\tCost: $" + Main.confLocalCost
-				+ " per message\n"
-				+ "Trade chat: \n\tCooldown: " + Main.confTradeCD + " seconds.\n\tCost: $" + Main.confTradeCost + " per message\n"
-				+ "World chat: \n\tCooldown: " + Main.confWorldCD + " seconds.\n\tCost: $" + Main.confWorldCost + " per message");
+		Text msg = Text.of(TextColors.GRAY, TextStyles.BOLD, "Local", TextColors.RESET, TextStyles.RESET, " chat: \n    Distance: " + Main.confLocalDist + " blocks\n"
+					+ "    Cooldown: " + Main.confLocalCD + " seconds\n    Cost: $" + Main.confLocalCost + " per message\n",
+					TextColors.AQUA, TextStyles.BOLD, "Trade", TextColors.RESET, TextStyles.RESET, " chat: \n    Cooldown: " + Main.confTradeCD + " seconds.\n    Cost: "
+						+ "$" + Main.confTradeCost + " per message\n",
+				TextColors.WHITE, TextStyles.BOLD, "World", TextColors.RESET, TextStyles.RESET, " chat: \n    Cooldown: " + Main.confWorldCD + " seconds.\n    Cost: "
+						+ "$" + Main.confWorldCost + " per message");
 		
 		return msg;
 	}
@@ -327,4 +334,142 @@ public class Utility
 			System.out.println("Economy plugin found. Chat costs enabled.");
 	}
 	//Cost handler end
+	
+	// World conditions begin
+	public static Boolean checkWorldConditions(Player player)
+	{
+		Optional<EconomyService> serviceOpt = Sponge.getServiceManager().provide(EconomyService.class);
+		EconomyService ecoService = Main.economyService;
+		BigDecimal amount = Main.confWorldCost;
+		Boolean success = false;
+		
+		// Check cooldown
+		String msg = Utility.CommandCooldown(player, worldCooldown, Main.confWorldCD);
+		
+		if(msg == null)
+		{
+			// Check for economy plugin
+			if(serviceOpt.isPresent())
+			{
+				// Attempt to consume money
+				TransactionResult result = Utility.MessageCost(ecoService, player, amount);
+				
+				// Money successfully eaten
+				if(result.getResult() != ResultType.SUCCESS)
+				{
+					player.sendMessage(Text.of(TextColors.RED, TextStyles.ITALIC, "You don't have enough money. Speaking in this channel currently costs $" +
+							amount + " per message."));
+					return success;
+				} else
+				{
+					if(amount.doubleValue() != 0.0)
+					{
+						player.sendMessage(Text.of(TextColors.DARK_GRAY, TextStyles.ITALIC, "$" + amount + " deducted."));
+					}
+					success = true;
+					return success;
+				}
+			} else // Run if economy plugin is NOT present
+			{
+				success = true;
+				return success;
+			}
+		} else
+		{
+			player.sendMessage(Text.of(msg));
+			return success;
+		}
+	} // World conditions end
+	
+	// Trade conditions begin
+	public static Boolean checkTradeConditions(Player player)
+	{
+		Optional<EconomyService> serviceOpt = Sponge.getServiceManager().provide(EconomyService.class);
+		EconomyService ecoService = Main.economyService;
+		BigDecimal amount = Main.confTradeCost;
+		Boolean success = false;
+		
+		// Check cooldown
+		String msg = Utility.CommandCooldown(player, tradeCooldown, Main.confTradeCD);
+		
+		if(msg == null)
+		{
+			// Check for economy plugin
+			if(serviceOpt.isPresent())
+			{
+				// Attempt to consume money
+				TransactionResult result = Utility.MessageCost(ecoService, player, amount);
+				
+				// Money successfully eaten
+				if(result.getResult() != ResultType.SUCCESS)
+				{
+					player.sendMessage(Text.of(TextColors.RED, TextStyles.ITALIC, "You don't have enough money. Speaking in this channel currently costs $" +
+							amount + " per message."));
+					return success;
+				} else
+				{
+					if(amount.doubleValue() != 0.0)
+					{
+						player.sendMessage(Text.of(TextColors.DARK_GRAY, TextStyles.ITALIC, "$" + amount + " deducted."));
+					}
+					success = true;
+					return success;
+				}
+			} else // Run if economy plugin is NOT present
+			{
+				success = true;
+				return success;
+			}
+		} else
+		{
+			player.sendMessage(Text.of(msg));
+			return success;
+		}
+	} // Trade conditions end
+	
+	// Local conditions begin
+	public static Boolean checkLocalConditions(Player player)
+	{
+		Optional<EconomyService> serviceOpt = Sponge.getServiceManager().provide(EconomyService.class);
+		EconomyService ecoService = Main.economyService;
+		BigDecimal amount = Main.confLocalCost;
+		Boolean success = false;
+		
+		// Check cooldown
+		String msg = Utility.CommandCooldown(player, localCooldown, Main.confLocalCD);
+		
+		if(msg == null)
+		{
+			// Check for economy plugin
+			if(serviceOpt.isPresent())
+			{
+				// Attempt to consume money
+				TransactionResult result = Utility.MessageCost(ecoService, player, amount);
+				
+				// Money successfully eaten
+				if(result.getResult() != ResultType.SUCCESS)
+				{
+					player.sendMessage(Text.of(TextColors.RED, TextStyles.ITALIC, "You don't have enough money. Speaking in this channel currently costs $" +
+							amount + " per message."));
+					return success;
+				} else
+				{
+					if(amount.doubleValue() != 0.0)
+					{
+						player.sendMessage(Text.of(TextColors.DARK_GRAY, TextStyles.ITALIC, "$" + amount + " deducted."));
+					}
+					success = true;
+					return success;
+				}
+			} else // Run if economy plugin is NOT present
+			{
+				success = true;
+				return success;
+			}
+		} else
+		{
+			player.sendMessage(Text.of(msg));
+			return success;
+		}
+	} // Local conditions end
 }

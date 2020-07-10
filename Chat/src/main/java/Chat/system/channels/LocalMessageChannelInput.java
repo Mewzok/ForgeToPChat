@@ -71,46 +71,15 @@ public class LocalMessageChannelInput implements MutableMessageChannel
 	@Override
 	public Optional<Text> transformMessage(Object sender, MessageReceiver recipient, Text original, ChatType type)
 	{
-		Optional<EconomyService> serviceOpt = Sponge.getServiceManager().provide(EconomyService.class);
-		EconomyService ecoService = Main.economyService;
-		BigDecimal amount = Main.confLocalCost;
-		
-		// Check cost if economy plugin is found
-		if(serviceOpt.isPresent())
+		Text text = original;
+		Collection<Entity> withinRange = Utility.getEntities((Player) sender, Main.confLocalDist);
+		if(this.members.contains(recipient) && withinRange.contains((Entity)recipient))
 		{
-			TransactionResult result = Utility.MessageCost(ecoService, (Player)sender, amount);
-			
-			if(result.getResult() != ResultType.SUCCESS)
-			{	
-				((Player)sender).sendMessage(Text.of(TextColors.RED, TextStyles.ITALIC, "You don't have enough money. Speaking in this channel currently costs $" +
-				amount + " per message."));
-				return Optional.empty();
-			} else 
-			{
-				if(amount.doubleValue() != 0.0)
-					((Player) sender).sendMessage(Text.of(TextColors.DARK_GRAY, TextStyles.ITALIC, "$" + amount + " deducted."));
-			}
+			text = Text.of(TextColors.GRAY, "[Local]", text);
+			return Optional.of(text);
 		}
-			
-		// Check cooldown
-		String msg = Utility.CommandCooldown((Player)sender, cooldown, Main.confLocalCD);
-		
-		if(msg == null)
+		else
 		{
-			Text text = original;
-			Collection<Entity> withinRange = Utility.getEntities((Player) sender, Main.confLocalDist);
-			if(this.members.contains(recipient) && withinRange.contains((Entity)recipient))
-				{
-					text = Text.of(TextColors.GRAY, "[Local]", text);
-					return Optional.of(text);
-				}
-			else
-			{
-				return Optional.empty();
-			}
-		} else
-		{
-			((Player)sender).sendMessage(Text.of(msg));
 			return Optional.empty();
 		}
 	}

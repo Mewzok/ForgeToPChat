@@ -37,6 +37,9 @@ import org.spongepowered.api.text.Text;
 
 import com.google.inject.Inject;
 
+import Chat.Commands.ChatSettings;
+import Chat.Commands.SetAllChatViewOff;
+import Chat.Commands.SetAllChatViewOn;
 import Chat.Commands.SetLocalChatViewOff;
 import Chat.Commands.SetLocalChatViewOn;
 import Chat.Commands.SetTradeChatViewOff;
@@ -108,78 +111,117 @@ public class Main
 	ConfigurationLoader<CommentedConfigurationNode> loader;
 	Config config;
 // End of configuration items
-	
+	// SetAllChatViewOn
+	CommandSpec acviCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.setallchatviewon")
+			.description(Text.of("Enables the viewing of all chat channels."))
+			.executor(new SetAllChatViewOn())
+			.build();
+	// SetAllChatViewOff
+	CommandSpec acvoCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.setallchatviewoff")
+			.description(Text.of("Disables the viewing of all chat channels."))
+			.executor(new SetAllChatViewOff())
+			.build();
+	// SetWorldChatViewOn
 	CommandSpec wcviCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.setworldchatviewon")
 			.description(Text.of("Enables the viewing of world chat."))
 			.executor(new SetWorldChatViewOn())
 			.build();
+	// SetWorldChatViewOff
 	CommandSpec wcvoCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.setworldchatviewoff")
 			.description(Text.of("Disables the viewing of world chat."))
 			.executor(new SetWorldChatViewOff())
 			.build();
+	// SetTradeChatViewOn
 	CommandSpec tcviCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.settradechatviewon")
 			.description(Text.of("Enables the viewing of trade chat."))
 			.executor(new SetTradeChatViewOn())
 			.build();
+	// SetTradeChatViewOff
 	CommandSpec tcvoCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.settradechatviewoff")
 			.description(Text.of("Disables the viewing of trade chat."))
 			.executor(new SetTradeChatViewOff())
 			.build();
+	// SetTradeChatViewOn
 	CommandSpec lcviCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.setlocalchatviewon")
 			.description(Text.of("Enables the viewing of local chat."))
 			.executor(new SetLocalChatViewOn())
 			.build();
+	// SetLocalChatViewOff
 	CommandSpec lcvoCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.setlocalchatviewoff")
 			.description(Text.of("Disables the viewing of local chat."))
 			.executor(new SetLocalChatViewOff())
 			.build();
+	// ViewChatStats
 	CommandSpec vcsCommandSpec = CommandSpec.builder()
-			.description(Text.of("Views current chat status."))
+			.permission("topchat.command.viewchatstats")
+			.description(Text.of("Displays your current chat status."))
 			.executor(new ViewChatStats())
 			.build();
+	// SetModeWorld
 	CommandSpec smwCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.setmodeworld")
 			.description(Text.of("Sets the current chat mode to world chat."))
 			.executor(new SetModeWorld())
 			.build();
+	// SetModeTrade
 	CommandSpec smtCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.setmodetrade")
 			.description(Text.of("Sets the current chat mode to trade chat."))
 			.executor(new SetModeTrade())
 			.build();
+	// SetModeLocal
 	CommandSpec smlCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.setmodelocal")
 			.description(Text.of("Sets the current chat mode to local chat."))
 			.executor(new SetModeLocal())
 			.build();
+	// SetModeSystem
 	CommandSpec smsCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.setmodesystem")
 			.description(Text.of("Sets the current chat mode to system chat."))
 			.executor(new SetModeSystem())
-			.permission("Chat.adminthing")
 			.build();
+	// ChatHelp
 	CommandSpec tchCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.chathelp")
 			.description(Text.of("Displays all ToPChat commands."))
 			.executor(new ChatHelp())
 			.build();
 	// chat info local
 	CommandSpec cilCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.chatinfolocal")
 			.description(Text.of("Displays information about local chat."))
 			.executor(new ChatInfoLocal())
 			.build();
 	// chat info trade
 	CommandSpec citCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.chatinfotrade")
 			.description(Text.of("Displays information about trade chat."))
 			.executor(new ChatInfoTrade())
 			.build();
 	// chat info world
 	CommandSpec ciwCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.chatinfoworld")
 			.description(Text.of("Displays information about world chat."))
 			.executor(new ChatInfoWorld())
 			.build();
 	// chat info system
 	CommandSpec cisCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.chatinfosystem")
 			.description(Text.of("Displays information about system chat."))
 			.executor(new ChatInfoSystem())
 			.build();
 	// chat info
 	CommandSpec ciCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.chatinfo")
 			.description(Text.of("Displays general information about ToPChat."))
 			.child(cilCommandSpec, "local", "l")
 			.child(citCommandSpec, "trade", "l")
@@ -187,20 +229,29 @@ public class Main
 			.child(cisCommandSpec, "system", "s")
 			.executor(new ChatInfo())
 			.build();
-	// chat
+	// SetMode
 	CommandSpec smCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.setmode")
 			.description(Text.of("Sets the current chat mode or provides help."))
 			.child(smwCommandSpec, "world", "w")
 			.child(smtCommandSpec, "trade", "t")
 			.child(smlCommandSpec, "local", "l")
 			.child(smsCommandSpec, "system", "s")
-			.child(tchCommandSpec, "topchathelp", "chathelp", "help")
+			.child(tchCommandSpec, "help", "chathelp", "topchathelp")
 			.child(ciCommandSpec, "info", "information")
 			.executor(new SetMode())
 			.build();
+	// TopChatReload
 	CommandSpec tcrCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.topchatreload")
 			.description(Text.of("Reloads the ToPChat config."))
 			.executor(new TopChatReload())
+			.build();
+	// ViewServerChatStats
+	CommandSpec csCommandSpec = CommandSpec.builder()
+			.permission("topchat.command.chatsettings")
+			.description(Text.of("Displays the server's current chat settings."))
+			.executor(new ChatSettings())
 			.build();
 	
 	@Listener
@@ -208,12 +259,12 @@ public class Main
 	{	
 		ChatKeys.dummy();
 		DataRegistration.builder()
-		.dataName("Chat Data")
-		.manipulatorId("chat_data")
+		.name("Chat Data")
+		.id("chat_data")
 		.dataClass(ChatData.class)
 		.immutableClass(ImmutableChatData.class)
 		.builder(new ChatDataBuilder())
-		.buildAndRegister(container);
+		.build();
 		
 		config = Utility.ConfigHandler(game, container, config, path, loader, logger);
 		
@@ -230,6 +281,8 @@ public class Main
 	public void init(GameInitializationEvent e)
 	{
 		// Commands
+		Sponge.getCommandManager().register(this, acviCommandSpec, "allchaton", "acon", "allchat", "ac");
+		Sponge.getCommandManager().register(this, acvoCommandSpec, "allchatoff", "acoff");
 		Sponge.getCommandManager().register(this, wcviCommandSpec, "worldchaton", "wcon", "worldchat", "wc");
 		Sponge.getCommandManager().register(this, wcvoCommandSpec, "worldchatoff", "wcoff");
 		Sponge.getCommandManager().register(this, tcviCommandSpec, "tradechaton", "tcon", "tradechat", "tc");
@@ -239,6 +292,7 @@ public class Main
 		Sponge.getCommandManager().register(this, vcsCommandSpec, "chatstats", "viewchatstats", "chats");
 		Sponge.getCommandManager().register(this, smCommandSpec, "mode", "cm", "chat");
 		Sponge.getCommandManager().register(this, tcrCommandSpec, "topchatreload", "tcr", "chatreload");
+		Sponge.getCommandManager().register(this, csCommandSpec, "chatsettings", "cs", "serverchat");
 	}
 	
 	@Listener
@@ -273,20 +327,32 @@ public class Main
 	@Listener
 	public void messageSent(MessageChannelEvent.Chat e)
 	{
+		Boolean success = false;
 		if(e.getSource() instanceof Player)
 		{
 			Player player = (Player) e.getSource();
 			
 			if (player.get(ChatKeys.MODE).get().equals("World"))
 			{
-				e.setChannel(wmci);
+				success = Utility.checkWorldConditions(((Player)e.getSource()));
+				if(success == true)
+					e.setChannel(wmci);
+				else
+					e.setMessageCancelled(true);
 			} else if (player.get(ChatKeys.MODE).get().equals("Trade"))
 			{
-				e.setChannel(tmci);
+				success = Utility.checkTradeConditions(((Player)e.getSource()));
+				if(success == true)
+					e.setChannel(tmci);
+				else
+					e.setMessageCancelled(true);
 			} else if (player.get(ChatKeys.MODE).get().equals("Local"))
 			{
-				e.setChannel(lmci);
-				
+				success = Utility.checkLocalConditions(((Player)e.getSource()));
+				if(success == true)
+					e.setChannel(lmci);
+				else
+					e.setMessageCancelled(true);
 			} else if (player.get(ChatKeys.MODE).get().equals("System"))
 			{
 				e.setChannel(smci);
@@ -352,23 +418,51 @@ public class Main
 		@Override
 		public CommandResult execute(CommandSource src, CommandContext args) throws CommandException
 		{
-			try
+			if(src instanceof Player)
 			{
-				config = Utility.ConfigHandler(game, container, config, path, loader, logger);
-				
-				confLocalDist = config.localInfo.distance;
-				confLocalCD = config.localInfo.cooldown;
-				confLocalCost = BigDecimal.valueOf(config.localInfo.cost).setScale(2, RoundingMode.HALF_UP);
-				confTradeCD = config.tradeInfo.cooldown;
-				confTradeCost = BigDecimal.valueOf(config.tradeInfo.cost).setScale(2, RoundingMode.HALF_UP);
-				confWorldCD = config.worldInfo.cooldown;
-				confWorldCost = BigDecimal.valueOf(config.worldInfo.cost).setScale(2, RoundingMode.HALF_UP);
-				
-				src.sendMessage(Text.of("ToPChat config reloaded."));
-			} catch (IOException | ObjectMappingException e)
+				if(((Player)src).hasPermission("topchat.command.topchatreload"))
+				{
+					try
+					{
+						config = Utility.ConfigHandler(game, container, config, path, loader, logger);
+						
+						confLocalDist = config.localInfo.distance;
+						confLocalCD = config.localInfo.cooldown;
+						confLocalCost = BigDecimal.valueOf(config.localInfo.cost).setScale(2, RoundingMode.HALF_UP);
+						confTradeCD = config.tradeInfo.cooldown;
+						confTradeCost = BigDecimal.valueOf(config.tradeInfo.cost).setScale(2, RoundingMode.HALF_UP);
+						confWorldCD = config.worldInfo.cooldown;
+						confWorldCost = BigDecimal.valueOf(config.worldInfo.cost).setScale(2, RoundingMode.HALF_UP);
+						
+						src.sendMessage(Text.of("ToPChat config reloaded."));
+					} catch (IOException | ObjectMappingException e)
+					{
+						logger.error("Failed to reload config.");
+						e.printStackTrace();
+					}
+					return CommandResult.success();
+				}
+			} else
 			{
-				logger.error("Failed to reload config.");
-				e.printStackTrace();
+				try
+				{
+					config = Utility.ConfigHandler(game, container, config, path, loader, logger);
+					
+					confLocalDist = config.localInfo.distance;
+					confLocalCD = config.localInfo.cooldown;
+					confLocalCost = BigDecimal.valueOf(config.localInfo.cost).setScale(2, RoundingMode.HALF_UP);
+					confTradeCD = config.tradeInfo.cooldown;
+					confTradeCost = BigDecimal.valueOf(config.tradeInfo.cost).setScale(2, RoundingMode.HALF_UP);
+					confWorldCD = config.worldInfo.cooldown;
+					confWorldCost = BigDecimal.valueOf(config.worldInfo.cost).setScale(2, RoundingMode.HALF_UP);
+					
+					src.sendMessage(Text.of("ToPChat config reloaded."));
+				} catch (IOException | ObjectMappingException e)
+				{
+					logger.error("Failed to reload config.");
+					e.printStackTrace();
+				}
+				return CommandResult.success();
 			}
 			return CommandResult.success();
 		}
